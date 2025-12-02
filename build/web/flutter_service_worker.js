@@ -3,12 +3,12 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"assets/AssetManifest.bin": "43282d93779f6325d94544f9372c7064",
-"assets/AssetManifest.bin.json": "15c381f3e09cd34230da548cb032d216",
+const RESOURCES = {"assets/AssetManifest.bin": "6388b8ed2747fc205681e004edd24808",
+"assets/AssetManifest.bin.json": "2643e40e15c5c5aa0b258dfc86fe7598",
 "assets/assets/chat_bg.png": "385464b70ebf44efd8ec4e96a10dad92",
 "assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
 "assets/fonts/MaterialIcons-Regular.otf": "e70327614c70dfc4d954c9e892b31c8f",
-"assets/NOTICES": "7c66527dc1764a3b0bed9093a4b98d76",
+"assets/NOTICES": "7464605bf53c53c1af232d15a04533a5",
 "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "33b7d9392238c04c131b6ce224e13711",
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
 "assets/shaders/stretch_effect.frag": "40d68efbbf360632f614c731219e95f0",
@@ -26,14 +26,14 @@ const RESOURCES = {"assets/AssetManifest.bin": "43282d93779f6325d94544f9372c7064
 "canvaskit/skwasm_heavy.wasm": "b0be7910760d205ea4e011458df6ee01",
 "favicon.png": "385464b70ebf44efd8ec4e96a10dad92",
 "flutter.js": "24bc71911b75b5f8135c949e27a2984e",
-"flutter_bootstrap.js": "0351ff7e0bca4c671f1632d88a1e1780",
+"flutter_bootstrap.js": "81668b759bdb65a34039f732d00f475e",
 "icons/Icon-192.png": "385464b70ebf44efd8ec4e96a10dad92",
 "icons/Icon-512.png": "385464b70ebf44efd8ec4e96a10dad92",
 "icons/Icon-maskable-192.png": "385464b70ebf44efd8ec4e96a10dad92",
 "icons/Icon-maskable-512.png": "385464b70ebf44efd8ec4e96a10dad92",
-"index.html": "53c8bde3ec868f22373a8f654e80e133",
-"/": "53c8bde3ec868f22373a8f654e80e133",
-"main.dart.js": "214f4216533577aea25f1a7fd0d051cf",
+"index.html": "d036386072fe56d60388b2d5e3b77e5d",
+"/": "d036386072fe56d60388b2d5e3b77e5d",
+"main.dart.js": "02b3ad509d6e5267b90f0f04d28fe91e",
 "manifest.json": "77ede249ec24a645165f4961e6a334fa",
 "version.json": "b94175cd354cff14b3fceaf770600c53"};
 // The application shell files that are downloaded before a service worker can
