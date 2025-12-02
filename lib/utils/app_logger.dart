@@ -106,38 +106,36 @@ class AppLogger {
   }
 
   /// Save each action as separate .txt file (Desktop/Mobile/Web)
-  static Future<void> saveActionLog(String actionName, String content) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
+  /// Save each action as separate .txt file (Desktop/Mobile/Web)
+static Future<void> saveActionLog(String actionName, String content) async {
+  final timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    if (!kIsWeb) {
-      io.Directory logsDir;
+  if (!kIsWeb) {
+    io.Directory logsDir;
 
-      // Desktop: store in project folder logs/
-      if (!kIsWeb &&
-          (io.Platform.isWindows || io.Platform.isLinux || io.Platform.isMacOS)) {
-        final projectDir = io.Directory.current.path;
-        logsDir = io.Directory(p.join(projectDir, 'logs'));
-      } else {
-        // Mobile: store in app documents directory
-        final dir = await getApplicationDocumentsDirectory();
-        logsDir = io.Directory(dir.path);
-      }
-
-      if (!await logsDir.exists()) {
-        await logsDir.create(recursive: true);
-      }
-
-      final file = io.File(p.join(logsDir.path, "${actionName}_$timestamp.txt"));
-      await file.writeAsString(content);
-      print("Saved log file: ${file.path}");
+    // Desktop: store in project folder logs/
+    if (io.Platform.isWindows || io.Platform.isLinux || io.Platform.isMacOS) {
+      final projectDir = io.Directory.current.path;
+      logsDir = io.Directory(p.join(projectDir, 'logs'));
     } else {
-      // Web: trigger download
-      final blob = html.Blob([content], 'text/plain');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.AnchorElement(href: url)
-        ..setAttribute('download', "${actionName}_$timestamp.txt")
-        ..click();
-      html.Url.revokeObjectUrl(url);
+      // Mobile: store in app documents directory
+      final dir = await getApplicationDocumentsDirectory();
+      logsDir = io.Directory(dir.path);
     }
+
+    if (!await logsDir.exists()) {
+      await logsDir.create(recursive: true);
+    }
+
+    final file = io.File(p.join(logsDir.path, "${actionName}_$timestamp.txt"));
+    await file.writeAsString(content);
+    print("Saved log file: ${file.path}");
+  } else {
+    // WEB: Store in LocalStorage ONLY (no download)
+    final key = "${actionName}_$timestamp";
+    final current = html.window.localStorage[key];
+    html.window.localStorage[key] = content;
+    print("Stored log in LocalStorage: $key");
   }
+}
 }
