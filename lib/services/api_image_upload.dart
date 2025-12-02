@@ -1,10 +1,11 @@
 // lib/services/api_image_upload.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiImageUpload {
   // Replace with your Lambda/API Gateway endpoint that returns presigned URL
-  final String presignApiUrl = "https://vghfsqg1d6.execute-api.ap-southeast-1.amazonaws.com/image_upload";
+  final String presignApiUrl = dotenv.env['PRESIGN_API_URL'] ?? "";
 
   /// Calls API to get presigned upload URL
   /// Returns a map with 'uploadUrl' and 'fileUrl' or null on failure

@@ -45,6 +45,7 @@ dependencies:
   js: ^0.7.2
   intl: ^0.18.1
   universal_html: ^2.0.8
+  flutter_dotenv: ^5.1.0
   
 
 dev_dependencies:
@@ -74,6 +75,7 @@ flutter_icons:
 flutter:
   assets:
     - assets/chat_bg.png
+    - .env
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

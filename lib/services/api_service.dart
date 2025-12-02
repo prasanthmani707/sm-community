@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/message.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
-  static const String baseUrl =
-      'https://qp52pkedx9.execute-api.ap-southeast-1.amazonaws.com/messagen';
-
+ 
+ late final String baseUrl = dotenv.env['API_BASE_URL'] ?? "";
+ 
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
