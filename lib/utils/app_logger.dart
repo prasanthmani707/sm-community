@@ -1,30 +1,23 @@
-// lib/utils/app_logger.dart
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
-import 'package:logger/logger.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:io' as io;
-import 'package:universal_html/html.dart' as html;
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:universal_html/html.dart' as html;
+import 'package:http/http.dart' as http;
 
 class AppLogger {
-  static final Logger _logger = Logger(
-    printer: PrettyPrinter(
-      methodCount: 1,
-      errorMethodCount: 3,
-      lineLength: 120,
-      printEmojis: true,
-      dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
-    ),
-  );
-
   static List<String> _logs = [];
   static io.File? _logFile;
 
-  /// Initialize AppLogger
+  /// Set your server URL here
+  static const String serverBaseUrl = "http://localhost:8080";
+
+  /// ---------------------------
+  /// INIT
+  /// ---------------------------
   static Future<void> init() async {
     if (!kIsWeb) {
-      // Mobile / Desktop
       final dir = await getApplicationDocumentsDirectory();
       _logFile = io.File("${dir.path}/app_log.txt");
 
@@ -34,16 +27,19 @@ class AppLogger {
       } else {
         await _logFile!.create();
       }
+      print("AppLogger initialized on Mobile/Desktop");
     } else {
-      // Web: load from LocalStorage
       final stored = html.window.localStorage['app_logs'];
       if (stored != null) {
         _logs = List<String>.from(jsonDecode(stored));
       }
+      // No print on Web
     }
   }
 
-  /// Save to internal logs list and store
+  /// ---------------------------
+  /// SAVE LOG LOCALLY
+  /// ---------------------------
   static Future<void> _save(String message) async {
     _logs.add(message);
 
@@ -54,46 +50,53 @@ class AppLogger {
     }
   }
 
-  /// Debug log
+  /// ---------------------------
+  /// PUBLIC LOG METHODS
+  /// ---------------------------
   static Future<void> d(dynamic message) async {
     final msg = "[DEBUG] $message";
-    _logger.d(msg);
+
+    // Only console on Mobile/Desktop
+    if (!kIsWeb) print(msg);
+
     await _save(msg);
-    await saveActionLog("debug", msg);
+    await _sendToServer("debug", msg);
   }
 
-  /// Info log
   static Future<void> i(dynamic message) async {
     final msg = "[INFO] $message";
-    _logger.i(msg);
+
+    if (!kIsWeb) print(msg);
+
     await _save(msg);
-    await saveActionLog("info", msg);
+    await _sendToServer("info", msg);
   }
 
-  /// Warn log
   static Future<void> w(dynamic message) async {
     final msg = "[WARN] $message";
-    _logger.w(msg);
+
+    if (!kIsWeb) print(msg);
+
     await _save(msg);
-    await saveActionLog("warn", msg);
+    await _sendToServer("warn", msg);
   }
 
-  /// Error log
   static Future<void> e(dynamic message,
       {dynamic error, StackTrace? stackTrace}) async {
     final msg = "[ERROR] $message";
-    _logger.e(msg, error: error, stackTrace: stackTrace);
+
+    if (!kIsWeb) print(msg);
+
     await _save(msg);
-    await saveActionLog("error", msg);
+    await _sendToServer("error", msg);
   }
 
-  /// Get all stored logs
+  /// ---------------------------
+  /// GET / EXPORT LOGS
+  /// ---------------------------
   static List<String> getStoredLogs() => _logs;
-
-  /// Export logs as single string
   static String exportLogs() => _logs.join("\n");
 
-  /// Download logs as .txt (Web only)
   static void downloadLogs(String fileName) {
     if (!kIsWeb) return;
 
@@ -102,23 +105,20 @@ class AppLogger {
     final anchor = html.AnchorElement(href: url)
       ..setAttribute('download', fileName)
       ..click();
+
     html.Url.revokeObjectUrl(url);
   }
 
-  /// Save each action as separate .txt file (Desktop/Mobile/Web)
-  /// Save each action as separate .txt file (Desktop/Mobile/Web)
-static Future<void> saveActionLog(String actionName, String content) async {
-  final timestamp = DateTime.now().millisecondsSinceEpoch;
-
-  if (!kIsWeb) {
+  /// ---------------------------
+  /// SAVE TO LOCAL FILE (Desktop/Mobile)
+  /// ---------------------------
+  static Future<void> _saveToLocalFile(String actionName, String content) async {
     io.Directory logsDir;
 
-    // Desktop: store in project folder logs/
     if (io.Platform.isWindows || io.Platform.isLinux || io.Platform.isMacOS) {
       final projectDir = io.Directory.current.path;
       logsDir = io.Directory(p.join(projectDir, 'logs'));
     } else {
-      // Mobile: store in app documents directory
       final dir = await getApplicationDocumentsDirectory();
       logsDir = io.Directory(dir.path);
     }
@@ -127,15 +127,36 @@ static Future<void> saveActionLog(String actionName, String content) async {
       await logsDir.create(recursive: true);
     }
 
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
     final file = io.File(p.join(logsDir.path, "${actionName}_$timestamp.txt"));
     await file.writeAsString(content);
-    print("Saved log file: ${file.path}");
-  } else {
-    // WEB: Store in LocalStorage ONLY (no download)
-    final key = "${actionName}_$timestamp";
-    final current = html.window.localStorage[key];
-    html.window.localStorage[key] = content;
-    print("Stored log in LocalStorage: $key");
+
+    if (!kIsWeb) print("Saved log file: ${file.path}");
   }
-}
+
+  /// ---------------------------
+  /// SEND LOG TO SERVER (WEB ONLY)
+  /// ---------------------------
+  static Future<void> _sendToServer(String action, String content) async {
+    if (!kIsWeb) {
+      await _saveToLocalFile(action, content);
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse("$serverBaseUrl/logs"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "action": action,
+          "content": content,
+          "timestamp": DateTime.now().toIso8601String(),
+        }),
+      );
+
+      // No print on Web
+    } catch (_) {
+      // Silently ignore network errors on Web
+    }
+  }
 }

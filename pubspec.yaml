@@ -46,6 +46,9 @@ dependencies:
   intl: ^0.18.1
   universal_html: ^2.0.8
   flutter_dotenv: ^5.1.0
+  shelf: ^1.4.0
+  shelf_router: ^1.0.0
+  path: ^1.8.3
   
 
 dev_dependencies:
